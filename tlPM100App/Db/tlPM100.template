@@ -1,0 +1,1192 @@
+###############################################################################
+#                                                                             #
+#                  Example database for USB TMC (488) devices                 #
+#                                                                             #
+###############################################################################
+
+
+###############################################################################
+#                                                                             #
+# asynInt32 records (non-streamDevice)                                        #
+#                                                                             #
+###############################################################################
+#
+# Uncomment to enable SRQ callback processing
+#
+#record(longin, "$(P)$(R)SRQ")
+#{
+#    field(DESC, "Device status byte from Service Request")
+#    field(DTYP, "asynInt32")
+#    field(INP,  "@asyn($(PORT), 0, 0) SRQ")
+#    field(SCAN, "I/O Intr")
+#}
+
+record(bo, "$(P)$(R)REN")
+{
+    field(DESC, "REN control")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asynMask($(PORT), 0, 1, 0) REN")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+}
+
+record(longin, "$(P)$(R)STB")
+{
+    field(DESC, "Device status byte")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT), 0, 0) STB")
+    field(PINI, "YES")
+}
+
+###############################################################################
+#                                                                             #
+# Mandatory for IEEE 488.2 devices                                            #
+#                                                                             #
+###############################################################################
+
+record(waveform, "$(P)$(R)IDN")
+{
+    field(DESC, "Device identification string")
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getString(*IDN,199) $(PORT) 0")
+    field(PINI, "YES")
+    field(FTVL, "CHAR")
+    field(NELM, "200")
+}
+
+record(bo, "$(P)$(R)RST")
+{
+    field(DESC, "Reset")
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto cmd(*RST) $(PORT) 0")
+}
+record(bo, "$(P)$(R)CLS")
+{
+    field(DESC, "Clear status")
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto cmd(*CLS) $(PORT) 0")
+}
+
+record(longin, "$(P)$(R)GetESR")
+{
+    field(DESC, "Get event status register")
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(*ESR) $(PORT) 0")
+}
+record(longout, "$(P)$(R)SetESE")
+{
+    field(DESC, "Set event status enable register")
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(*ESE) $(PORT) 0")
+}
+
+###############################################################################
+#                                                                             #
+# Typical commands
+#                                                                             #
+###############################################################################
+
+record(stringin, "$(P)$(R)MeasureSI")
+{
+    field(DESC, "Single measurement as string")
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getString(MEAS,39) $(PORT) 0")
+}
+record(ai, "$(P)$(R)MeasureAI")
+{
+    field(DESC, "Single floating-point measurement")
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(MEAS) $(PORT) 0")
+}
+
+## HK SYST:SENS:IDN?
+record(waveform, "$(P)$(R)SENS:IDN")
+{
+    field(DESC, "Sensor identification string")
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getString(SYST:SENS:IDN,199) $(PORT) 0")
+    field(PINI, "YES")
+    field(FTVL, "CHAR")
+    field(NELM, "200")
+}
+
+## HK SYST:VERS?
+record(waveform, "$(P)$(R)VERS")
+{
+    field(DESC, "SCPI version string")
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getString(SYST:VERS,199) $(PORT) 0")
+    field(PINI, "YES")
+    field(FTVL, "CHAR")
+    field(NELM, "200")
+}
+
+## HK SYST:ERR?
+record(waveform, "$(P)$(R)SYST:ERR")
+{
+    field(DESC, "SCPI error string")
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getString(SYST:ERR,199) $(PORT) 0")
+    field(PINI, "YES")
+    field(FTVL, "CHAR")
+    field(NELM, "200")
+}
+
+## HK CAL:STR?
+record(waveform, "$(P)$(R)CAL:STR")
+{
+    field(DESC, "SCPI calibration string")
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getString(CAL:STR,199) $(PORT) 0")
+    field(PINI, "YES")
+    field(FTVL, "CHAR")
+    field(NELM, "200")
+}
+
+## HK CONF?
+record(waveform, "$(P)$(R)CONF")
+{
+    field(DESC, "SCPI current measure config string")
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getString(CONF,199) $(PORT) 0")
+    field(PINI, "YES")
+    field(FTVL, "CHAR")
+    field(NELM, "200")
+}
+
+## HK CONF:POW
+record(bo, "$(P)$(R)CONF:POW")
+{
+    field(DESC, "SCPI set power measure config string")
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto cmd(CONF:POW) $(PORT) 0")
+#    field(PINI, "YES")
+#    field(FTVL, "CHAR")
+#    field(NELM, "200")
+}
+
+## HK MEAS:POW
+record(ai, "$(P)$(R)MEAS:POW")
+{
+    field(DESC, "Single floating-point power measurement")
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(MEAS:POW) $(PORT) 0")
+}
+
+## HK CONF:ENER
+record(bo, "$(P)$(R)CONF:ENER")
+{
+    field(DESC, "SCPI set energy measure config string")
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto cmd(CONF:ENER) $(PORT) 0")
+#    field(PINI, "YES")
+#    field(FTVL, "CHAR")
+#    field(NELM, "200")
+}
+
+## HK MEAS:ENER
+record(ai, "$(P)$(R)MEAS:ENER")
+{
+    field(DESC, "Single floating-point energy measurement")
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(MEAS:ENER) $(PORT) 0")
+}
+
+
+
+##############################################################################
+## STATus subsystem
+##############################################################################
+record(bo, "$(P)$(R)STAT:PRES")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto cmd(STAT:PRES) $(PORT) 0")
+}
+
+
+##
+## STAT:MEAS
+##
+record(longin, "$(P)$(R)STAT:MEAS:EVEN_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:MEAS:EVEN) $(PORT) 0")
+    field(PINI, "YES")
+}
+
+record(longin, "$(P)$(R)STAT:MEAS:COND_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:MEAS:COND) $(PORT) 0")
+    field(PINI, "YES")
+}
+
+record(longin, "$(P)$(R)STAT:MEAS:ENAB_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:MEAS:ENAB) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:MEAS:ENAB")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:MEAS:ENAB) $(PORT) 0")
+}
+
+record(longin, "$(P)$(R)STAT:MEAS:PTR_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:MEAS:PTR) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:MEAS:PTR")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:MEAS:PTR) $(PORT) 0")
+}
+
+record(longin, "$(P)$(R)STAT:MEAS:NTR_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:MEAS:NTR) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:MEAS:NTR")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:MEAS:NTR) $(PORT) 0")
+}
+
+
+
+##
+## STAT:AUX
+##
+record(longin, "$(P)$(R)STAT:AUX:EVEN_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:AUX:EVEN) $(PORT) 0")
+    field(PINI, "YES")
+}
+
+record(longin, "$(P)$(R)STAT:AUX:COND_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:AUX:COND) $(PORT) 0")
+    field(PINI, "YES")
+}
+
+record(longin, "$(P)$(R)STAT:AUX:ENAB_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:AUX:ENAB) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:AUX:ENAB")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:AUX:ENAB) $(PORT) 0")
+}
+
+record(longin, "$(P)$(R)STAT:AUX:PTR_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:AUX:PTR) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:AUX:PTR")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:AUX:PTR) $(PORT) 0")
+}
+
+record(longin, "$(P)$(R)STAT:AUX:NTR_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:AUX:NTR) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:AUX:NTR")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:AUX:NTR) $(PORT) 0")
+}
+
+
+##
+## STAT:OPER
+##
+record(longin, "$(P)$(R)STAT:OPER:EVEN_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:OPER:EVEN) $(PORT) 0")
+    field(PINI, "YES")
+}
+
+record(longin, "$(P)$(R)STAT:OPER:COND_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:OPER:COND) $(PORT) 0")
+    field(PINI, "YES")
+}
+
+record(longin, "$(P)$(R)STAT:OPER:ENAB_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:OPER:ENAB) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:OPER:ENAB")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:OPER:ENAB) $(PORT) 0")
+}
+
+record(longin, "$(P)$(R)STAT:OPER:PTR_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:OPER:PTR) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:OPER:PTR")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:OPER:PTR) $(PORT) 0")
+}
+
+record(longin, "$(P)$(R)STAT:OPER:NTR_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:OPER:NTR) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:OPER:NTR")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:OPER:NTR) $(PORT) 0")
+}
+
+
+##
+## STAT:QUES
+##
+record(longin, "$(P)$(R)STAT:QUES:EVEN_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:QUES:EVEN) $(PORT) 0")
+    field(PINI, "YES")
+}
+
+record(longin, "$(P)$(R)STAT:QUES:COND_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:QUES:COND) $(PORT) 0")
+    field(PINI, "YES")
+}
+
+record(longin, "$(P)$(R)STAT:QUES:ENAB_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:QUES:ENAB) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:QUES:ENAB")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:QUES:ENAB) $(PORT) 0")
+}
+
+record(longin, "$(P)$(R)STAT:QUES:PTR_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:QUES:PTR) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:QUES:PTR")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:QUES:PTR) $(PORT) 0")
+}
+
+record(longin, "$(P)$(R)STAT:QUES:NTR_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(STAT:QUES:NTR) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)STAT:QUES:NTR")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(STAT:QUES:NTR) $(PORT) 0")
+}
+
+
+##############################################################################
+## SENSe subsystem
+##############################################################################
+
+##
+## SENS:AVER
+##
+record(longin, "$(P)$(R)SENS:AVER:COUN_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(SENS:AVER:COUN) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)SENS:AVER:COUN")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(SENS:AVER:COUN) $(PORT) 0")
+}
+
+##
+## SENS:CORR
+##
+record(longin, "$(P)$(R)SENS:CORR:LOSS_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(SENS:CORR:LOSS) $(PORT) 0")
+    field(PINI, "YES")
+}
+record(longout, "$(P)$(R)SENS:CORR:LOSS")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setD(SENS:CORR:LOSS) $(PORT) 0")
+}
+record(mbbo, "$(P)$(R)SENS:CORR:LOSS2")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:CORR:LOSS) $(PORT) 0")
+	field(ZRST, "MIN")
+	field(ZRVL, "0")
+	field(ONST, "MAX")
+	field(ONVL, "1")
+	field(TWST, "DEF")
+	field(TWVL, "2")
+}
+
+record(bo, "$(P)$(R)SENS:CORR:COLL:ZERO:INIT")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto cmd(SENS:CORR:COLL:ZERO:INIT) $(PORT) 0")
+}
+
+record(bo, "$(P)$(R)SENS:CORR:COLL:ZERO:ABOR")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto cmd(SENS:CORR:COLL:ZERO:ABOR) $(PORT) 0")
+}
+
+record(longin, "$(P)$(R)SENS:CORR:COLL:ZERO:STAT_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(SENS:CORR:COLL:ZERO:STAT) $(PORT) 0")
+    field(PINI, "YES")
+}
+
+record(ai, "$(P)$(R)SENS:CORR:COLL:ZERO:MAGN_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:CORR:COLL:ZERO:MAGN) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+}
+
+record(ai, "$(P)$(R)SENS:CORR:BEAM_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:CORR:BEAM) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+    field(EGU,  "mm")
+}
+record(ao, "$(P)$(R)SENS:CORR:BEAM")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setF(SENS:CORR:BEAM) $(PORT) 0")
+    field(PREC, "3")
+    field(EGU,  "mm")
+}
+record(mbbo, "$(P)$(R)SENS:CORR:BEAM2")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:CORR:BEAM) $(PORT) 0")
+	field(ZRST, "MIN")
+	field(ZRVL, "0")
+	field(ONST, "MAX")
+	field(ONVL, "1")
+	field(TWST, "DEF")
+	field(TWVL, "2")
+}
+
+record(ai, "$(P)$(R)SENS:CORR:WAV_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:CORR:WAV) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+    field(EGU,  "nm")
+}
+record(ao, "$(P)$(R)SENS:CORR:WAV")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setF(SENS:CORR:WAV) $(PORT) 0")
+    field(PREC, "3")
+    field(EGU,  "nm")
+}
+record(mbbo, "$(P)$(R)SENS:CORR:WAV2")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:CORR:WAV) $(PORT) 0")
+	field(ZRST, "MIN")
+	field(ZRVL, "0")
+	field(ONST, "MAX")
+	field(ONVL, "1")
+}
+
+record(ai, "$(P)$(R)SENS:CORR:POW:PDI:RESP_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:CORR:POW:PDI:RESP) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+    field(EGU,  "A")
+}
+record(ao, "$(P)$(R)SENS:CORR:POW:PDI:RESP")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setF(SENS:CORR:POW:PDI:RESP) $(PORT) 0")
+    field(PREC, "3")
+    field(EGU,  "A")
+}
+record(mbbo, "$(P)$(R)SENS:CORR:POW:PDI:RESP2")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:CORR:POW:PDI:RESP) $(PORT) 0")
+	field(ZRST, "MIN")
+	field(ZRVL, "0")
+	field(ONST, "MAX")
+	field(ONVL, "1")
+	field(TWST, "DEF")
+	field(TWVL, "2")
+}
+
+record(ai, "$(P)$(R)SENS:CORR:POW:THER:RESP_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:CORR:POW:THER:RESP) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+    field(EGU,  "V")
+}
+record(ao, "$(P)$(R)SENS:CORR:POW:THER:RESP")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setF(SENS:CORR:POW:THER:RESP) $(PORT) 0")
+    field(PREC, "3")
+    field(EGU,  "V")
+}
+record(mbbo, "$(P)$(R)SENS:CORR:POW:THER:RESP2")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:CORR:POW:THER:RESP) $(PORT) 0")
+	field(ZRST, "MIN")
+	field(ZRVL, "0")
+	field(ONST, "MAX")
+	field(ONVL, "1")
+	field(TWST, "DEF")
+	field(TWVL, "2")
+}
+
+record(ai, "$(P)$(R)SENS:CORR:ENER:PYRO:RESP_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:CORR:ENER:PYRO:RESP) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+    field(EGU,  "V")
+}
+record(ao, "$(P)$(R)SENS:CORR:ENER:PYRO:RESP")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setF(SENS:CORR:ENER:PYRO:RESP) $(PORT) 0")
+    field(PREC, "3")
+    field(EGU,  "V")
+}
+record(mbbo, "$(P)$(R)SENS:CORR:ENER:PYRO:RESP2")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:CORR:ENER:PYRO:RESP) $(PORT) 0")
+	field(ZRST, "MIN")
+	field(ZRVL, "0")
+	field(ONST, "MAX")
+	field(ONVL, "1")
+	field(TWST, "DEF")
+	field(TWVL, "2")
+}
+
+
+##
+## SENS:CURR
+##
+record(mbbi, "$(P)$(R)SENS:CURR:RANG:AUTO_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(SENS:CURR:RANG:AUTO) $(PORT) 0")
+    field(PINI, "YES")
+	field(ZRST, "OFF")
+	field(ZRVL, "0")
+	field(ONST, "ON")
+	field(ONVL, "1")
+}
+record(mbbo, "$(P)$(R)SENS:CURR:RANG:AUTO")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:CURR:RANG:AUTO) $(PORT) 0")
+	field(ZRST, "OFF")
+	field(ZRVL, "0")
+	field(ONST, "ON")
+	field(ONVL, "1")
+}
+
+record(ai, "$(P)$(R)SENS:CURR:RANG:UPP_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:CURR:RANG:UPP) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+    field(EGU,  "A")
+}
+record(ao, "$(P)$(R)SENS:CURR:RANG:UPP")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setF(SENS:CURR:RANG:UPP) $(PORT) 0")
+    field(PREC, "3")
+    field(EGU,  "A")
+}
+record(mbbo, "$(P)$(R)SENS:CURR:RANG:UPP2")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:CURR:RANG:UPP) $(PORT) 0")
+	field(ZRST, "MIN")
+	field(ZRVL, "0")
+	field(ONST, "MAX")
+	field(ONVL, "1")
+	field(TWST, "DEF")
+	field(TWVL, "2")
+}
+
+record(ai, "$(P)$(R)SENS:CURR:REF_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:CURR:REF) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+    field(EGU,  "A")
+}
+record(ao, "$(P)$(R)SENS:CURR:REF")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setF(SENS:CURR:REF) $(PORT) 0")
+    field(PREC, "3")
+    field(EGU,  "A")
+}
+record(mbbo, "$(P)$(R)SENS:CURR:REF2")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:CURR:REF) $(PORT) 0")
+	field(ZRST, "MIN")
+	field(ZRVL, "0")
+	field(ONST, "MAX")
+	field(ONVL, "1")
+	field(TWST, "DEF")
+	field(TWVL, "2")
+}
+
+record(mbbi, "$(P)$(R)SENS:CURR:REF:STAT_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(SENS:CURR:REF:STAT) $(PORT) 0")
+    field(PINI, "YES")
+	field(ZRST, "OFF")
+	field(ZRVL, "0")
+	field(ONST, "ON")
+	field(ONVL, "1")
+}
+record(mbbo, "$(P)$(R)SENS:CURR:REF:STAT")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:CURR:REF:STAT) $(PORT) 0")
+	field(ZRST, "OFF")
+	field(ZRVL, "0")
+	field(ONST, "ON")
+	field(ONVL, "1")
+}
+
+##
+## SENS:ENER
+##
+
+### NOTE: The SENS:ENER do not work for some reason?!?!
+#record(ai, "$(P)$(R)SENS:ENER:RANG:UPP_RBV")
+#{
+#    field(DTYP, "stream")
+#    field(INP,  "@tlPM100.proto getF(SENS:ENER:RANG:UPP) $(PORT) 0")
+#    field(PINI, "YES")
+#    field(PREC, "3")
+#    field(EGU,  "J")
+#}
+#record(ao, "$(P)$(R)SENS:ENER:RANG:UPP")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setF(SENS:ENER:RANG:UPP) $(PORT) 0")
+#    field(PREC, "3")
+#    field(EGU,  "J")
+#}
+#record(mbbo, "$(P)$(R)SENS:ENER:RANG:UPP2")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setString(SENS:ENER:RANG:UPP) $(PORT) 0")
+#	field(ZRST, "MIN")
+#	field(ZRVL, "0")
+#	field(ONST, "MAX")
+#	field(ONVL, "1")
+#	field(TWST, "DEF")
+#	field(TWVL, "2")
+#}
+#
+#record(ai, "$(P)$(R)SENS:ENER:REF_RBV")
+#{
+#    field(DTYP, "stream")
+#    field(INP,  "@tlPM100.proto getF(SENS:ENER:REF) $(PORT) 0")
+#    field(PINI, "YES")
+#    field(PREC, "3")
+#    field(EGU,  "J")
+#}
+#record(ao, "$(P)$(R)SENS:ENER:REF")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setF(SENS:ENER:REF) $(PORT) 0")
+#    field(PREC, "3")
+#    field(EGU,  "J")
+#}
+#record(mbbo, "$(P)$(R)SENS:ENER:REF2")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setString(SENS:ENER:REF) $(PORT) 0")
+#	field(ZRST, "MIN")
+#	field(ZRVL, "0")
+#	field(ONST, "MAX")
+#	field(ONVL, "1")
+#	field(TWST, "DEF")
+#	field(TWVL, "2")
+#}
+#
+#record(mbbi, "$(P)$(R)SENS:ENER:REF:STAT_RBV")
+#{
+#    field(DTYP, "stream")
+#    field(INP,  "@tlPM100.proto getD(SENS:ENER:REF:STAT) $(PORT) 0")
+#    field(PINI, "YES")
+#	field(ZRST, "OFF")
+#	field(ZRVL, "0")
+#	field(ONST, "ON")
+#	field(ONVL, "1")
+#}
+#record(mbbo, "$(P)$(R)SENS:ENER:REF:STAT")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setString(SENS:ENER:REF:STAT) $(PORT) 0")
+#	field(ZRST, "OFF")
+#	field(ZRVL, "0")
+#	field(ONST, "ON")
+#	field(ONVL, "1")
+#}
+
+##
+## SENS:FREQ
+##
+record(ai, "$(P)$(R)SENS:FREQ:RANG:LOW_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:FREQ:RANG:LOW) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+    field(EGU,  "Hz")
+}
+record(ai, "$(P)$(R)SENS:FREQ:RANG:UPP_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:FREQ:RANG:UPP) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+    field(EGU,  "Hz")
+}
+
+##
+## SENS:POW
+##
+record(mbbi, "$(P)$(R)SENS:POW:RANG:AUTO_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(SENS:POW:RANG:AUTO) $(PORT) 0")
+    field(PINI, "YES")
+	field(ZRST, "OFF")
+	field(ZRVL, "0")
+	field(ONST, "ON")
+	field(ONVL, "1")
+}
+record(mbbo, "$(P)$(R)SENS:POW:RANG:AUTO")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:POW:RANG:AUTO) $(PORT) 0")
+	field(ZRST, "OFF")
+	field(ZRVL, "0")
+	field(ONST, "ON")
+	field(ONVL, "1")
+}
+
+record(ai, "$(P)$(R)SENS:POW:RANG:UPP_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:POW:RANG:UPP) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+    field(EGU,  "W")
+}
+record(ao, "$(P)$(R)SENS:POW:RANG:UPP")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setF(SENS:POW:RANG:UPP) $(PORT) 0")
+    field(PREC, "3")
+    field(EGU,  "W")
+}
+record(mbbo, "$(P)$(R)SENS:POW:RANG:UPP2")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:POW:RANG:UPP) $(PORT) 0")
+	field(ZRST, "MIN")
+	field(ZRVL, "0")
+	field(ONST, "MAX")
+	field(ONVL, "1")
+	field(TWST, "DEF")
+	field(TWVL, "2")
+}
+
+record(ai, "$(P)$(R)SENS:POW:REF_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:POW:REF) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+    field(EGU,  "W")
+}
+record(ao, "$(P)$(R)SENS:POW:REF")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setF(SENS:POW:REF) $(PORT) 0")
+    field(PREC, "3")
+    field(EGU,  "W")
+}
+record(mbbo, "$(P)$(R)SENS:POW:REF2")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:POW:REF) $(PORT) 0")
+	field(ZRST, "MIN")
+	field(ZRVL, "0")
+	field(ONST, "MAX")
+	field(ONVL, "1")
+	field(TWST, "DEF")
+	field(TWVL, "2")
+}
+
+record(mbbi, "$(P)$(R)SENS:POW:REF:STAT_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(SENS:POW:REF:STAT) $(PORT) 0")
+    field(PINI, "YES")
+	field(ZRST, "OFF")
+	field(ZRVL, "0")
+	field(ONST, "ON")
+	field(ONVL, "1")
+}
+record(mbbo, "$(P)$(R)SENS:POW:REF:STAT")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:POW:REF:STAT) $(PORT) 0")
+	field(ZRST, "OFF")
+	field(ZRVL, "0")
+	field(ONST, "ON")
+	field(ONVL, "1")
+}
+
+#record(mbbi, "$(P)$(R)SENS:POW:UNIT_RBV")
+#{
+#    field(DTYP, "stream")
+#    field(INP,  "@tlPM100.proto getString(SENS:POW:UNIT, 4) $(PORT) 0")
+#   field(PINI, "YES")
+#	field(ZRST, "W")
+#	field(ZRVL, "0")
+#	field(ONST, "dBm")
+#	field(ONVL, "1")
+#}
+record(waveform, "$(P)$(R)SENS:POW:UNIT_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getString(SENS:POW:UNIT,4) $(PORT) 0")
+    field(PINI, "YES")
+    field(FTVL, "CHAR")
+    field(NELM, "5")
+}
+
+record(mbbo, "$(P)$(R)SENS:POW:UNIT")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:POW:UNIT) $(PORT) 0")
+	field(ZRST, "W")
+	field(ZRVL, "0")
+	field(ONST, "dBm")
+	field(ONVL, "1")
+}
+
+
+##
+## SENS:VOLT
+##
+
+### NOTE: The SENS:VOLT do not work for some reason?!?!
+#record(mbbi, "$(P)$(R)SENS:VOLT:RANG:AUTO_RBV")
+#{
+#    field(DTYP, "stream")
+#    field(INP,  "@tlPM100.proto getD(SENS:VOLT:RANG:AUTO) $(PORT) 0")
+#    field(PINI, "YES")
+#	field(ZRST, "OFF")
+#	field(ZRVL, "0")
+#	field(ONST, "ON")
+#	field(ONVL, "1")
+#}
+#record(mbbo, "$(P)$(R)SENS:VOLT:RANG:AUTO")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setString(SENS:VOLT:RANG:AUTO) $(PORT) 0")
+#	field(ZRST, "OFF")
+#	field(ZRVL, "0")
+#	field(ONST, "ON")
+#	field(ONVL, "1")
+#}
+#
+#record(ai, "$(P)$(R)SENS:VOLT:RANG:UPP_RBV")
+#{
+#    field(DTYP, "stream")
+#    field(INP,  "@tlPM100.proto getF(SENS:VOLT:RANG:UPP) $(PORT) 0")
+#    field(PINI, "YES")
+#    field(PREC, "3")
+#    field(EGU,  "V")
+#}
+#record(ao, "$(P)$(R)SENS:VOLT:RANG:UPP")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setF(SENS:VOLT:RANG:UPP) $(PORT) 0")
+#    field(PREC, "3")
+#    field(EGU,  "V")
+#}
+#record(mbbo, "$(P)$(R)SENS:VOLT:RANG:UPP2")
+#{
+#   field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setString(SENS:VOLT:RANG:UPP) $(PORT) 0")
+#	field(ZRST, "MIN")
+#	field(ZRVL, "0")
+#	field(ONST, "MAX")
+#	field(ONVL, "1")
+#	field(TWST, "DEF")
+#	field(TWVL, "2")
+#}
+#
+#record(ai, "$(P)$(R)SENS:VOLT:REF_RBV")
+#{
+#    field(DTYP, "stream")
+#    field(INP,  "@tlPM100.proto getF(SENS:VOLT:REF) $(PORT) 0")
+#    field(PINI, "YES")
+#    field(PREC, "3")
+#    field(EGU,  "V")
+#}
+#record(ao, "$(P)$(R)SENS:VOLT:REF")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setF(SENS:VOLT:REF) $(PORT) 0")
+#    field(PREC, "3")
+#    field(EGU,  "V")
+#}
+#record(mbbo, "$(P)$(R)SENS:VOLT:REF2")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setString(SENS:VOLT:REF) $(PORT) 0")
+#	field(ZRST, "MIN")
+#	field(ZRVL, "0")
+#	field(ONST, "MAX")
+#	field(ONVL, "1")
+#	field(TWST, "DEF")
+#	field(TWVL, "2")
+#}
+#
+#record(mbbi, "$(P)$(R)SENS:VOLT:REF:STAT_RBV")
+#{
+#    field(DTYP, "stream")
+#    field(INP,  "@tlPM100.proto getD(SENS:VOLT:REF:STAT) $(PORT) 0")
+#    field(PINI, "YES")
+#	field(ZRST, "OFF")
+#	field(ZRVL, "0")
+#	field(ONST, "ON")
+#	field(ONVL, "1")
+#}
+#record(mbbo, "$(P)$(R)SENS:VOLT:REF:STAT")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setString(SENS:VOLT:REF:STAT) $(PORT) 0")
+#	field(ZRST, "OFF")
+#	field(ZRVL, "0")
+#	field(ONST, "ON")
+#	field(ONVL, "1")
+#}
+
+##
+## SENS:PEAK
+##
+record(ai, "$(P)$(R)SENS:PEAK:THR_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getF(SENS:PEAK:THR) $(PORT) 0")
+    field(PINI, "YES")
+    field(PREC, "3")
+#    field(EGU,  "%")
+}
+record(ao, "$(P)$(R)SENS:PEAK:THR")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setF(SENS:PEAK:THR) $(PORT) 0")
+    field(PREC, "3")
+    field(EGU,  "%")
+}
+record(mbbo, "$(P)$(R)SENS:PEAK:THR2")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(SENS:PEAK:THR) $(PORT) 0")
+	field(ZRST, "MIN")
+	field(ZRVL, "0")
+	field(ONST, "MAX")
+	field(ONVL, "1")
+	field(TWST, "DEF")
+	field(TWVL, "2")
+}
+
+##
+## INP:PDI
+##
+record(mbbi, "$(P)$(R)INP:PDI:FILT:LPAS:STAT_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getD(INP:PDI:FILT:LPAS:STAT) $(PORT) 0")
+    field(PINI, "YES")
+	field(ZRST, "OFF")
+	field(ZRVL, "0")
+	field(ONST, "ON")
+	field(ONVL, "1")
+}
+record(mbbo, "$(P)$(R)INP:PDI:FILT:LPAS:STAT")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(INP:PDI:FILT:LPAS:STAT) $(PORT) 0")
+	field(ZRST, "OFF")
+	field(ZRVL, "0")
+	field(ONST, "ON")
+	field(ONVL, "1")
+}
+
+##
+## INP:THER
+##
+### NOTE: The INP:THER do not work for some reason?!?!
+#record(ai, "$(P)$(R)INP:THER:ACC:TAU_RBV")
+#{
+#    field(DTYP, "stream")
+#    field(INP,  "@tlPM100.proto getF(INP:THER:ACC:TAU) $(PORT) 0")
+#    field(PINI, "YES")
+#    field(PREC, "3")
+#    field(EGU,  "W")
+#}
+#record(ao, "$(P)$(R)INP:THER:ACC:TAU")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setF(INP:THER:ACC:TAU) $(PORT) 0")
+#    field(PREC, "3")
+#    field(EGU,  "W")
+#}
+#record(mbbo, "$(P)$(R)INP:THER:ACC:TAU2")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setString(INP:THER:ACC:TAU) $(PORT) 0")
+#	field(ZRST, "MIN")
+#	field(ZRVL, "0")
+#	field(ONST, "MAX")
+#	field(ONVL, "1")
+#	field(TWST, "DEF")
+#	field(TWVL, "2")
+#}
+#
+#record(mbbi, "$(P)$(R)INP:THER:ACC:STAT_RBV")
+#{
+#    field(DTYP, "stream")
+#    field(INP,  "@tlPM100.proto getD(INP:THER:ACC:STAT) $(PORT) 0")
+#    field(PINI, "YES")
+#	field(ZRST, "OFF")
+#	field(ZRVL, "0")
+#	field(ONST, "ON")
+#	field(ONVL, "1")
+#}
+#record(mbbo, "$(P)$(R)INP:THER:ACC:STAT")
+#{
+#    field(DTYP, "stream")
+#    field(OUT,  "@tlPM100.proto setString(INP:THER:ACC:STAT) $(PORT) 0")
+#	field(ZRST, "OFF")
+#	field(ZRVL, "0")
+#	field(ONST, "ON")
+#	field(ONVL, "1")
+#}
+
+
+##
+## INP:ADAP
+##
+
+#record(mbbi, "$(P)$(R)INP:ADAP:TYPE_RBV")
+#{
+#    field(DTYP, "stream")
+#    field(INP,  "@tlPM100.proto getD(INP:ADAP:TYPE) $(PORT) 0")
+#    field(PINI, "YES")
+#	field(ZRST, "PHOT")
+#	field(ZRVL, "0")
+#	field(ONST, "THER")
+#	field(ONVL, "1")
+#	field(TWST, "PYR")
+#	field(TWVL, "2")
+#}
+record(waveform, "$(P)$(R)INP:ADAP:TYPE_RBV")
+{
+    field(DTYP, "stream")
+    field(INP,  "@tlPM100.proto getString(INP:ADAP:TYPE,5) $(PORT) 0")
+    field(PINI, "YES")
+    field(FTVL, "CHAR")
+    field(NELM, "6")
+}
+
+record(mbbo, "$(P)$(R)INP:ADAP:TYPE")
+{
+    field(DTYP, "stream")
+    field(OUT,  "@tlPM100.proto setString(INP:ADAP:TYPE) $(PORT) 0")
+	field(ZRST, "PHOT")
+	field(ZRVL, "0")
+	field(ONST, "THER")
+	field(ONVL, "1")
+	field(TWST, "PYR")
+	field(TWVL, "2")
+}

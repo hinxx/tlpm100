@@ -1,0 +1,10 @@
+# Thorlabs PM100USB USB Serial Device
+# lsusb: Bus 002 Device 009: ID 1313:8072 ThorLabs 
+
+ACTION!="add|change", GOTO="usb_device_end"
+SUBSYSTEM!="usb", GOTO="usb_device_end"
+ENV{DEVTYPE}!="usb_device", GOTO="usb_device_end"
+
+ATTRS{idVendor}=="1313", ATTRS{idProduct}=="8072", MODE="0666"
+
+LABEL="usb_device_end"
